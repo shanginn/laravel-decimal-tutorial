@@ -37,8 +37,37 @@ class MoneyTest extends TestCase
         $this->assertEquals(200, $result->cents);
     }
 
-    public function testDivide()
-    {}
+    public function testDivideInt()
+    {
+        $left = new Money(100);
+        $right = 2;
+
+        [$result, $remainder] = $left->divide($right);
+
+        $this->assertEquals(50, $result->cents);
+        $this->assertEquals(0, $remainder);
+    }
+
+    public function testDivideZero()
+    {
+        $left = new Money(100);
+        $right = 0;
+
+        $this->expectException(\DivisionByZeroError::class);
+
+        $left->divide($right);
+    }
+
+    public function testDivideCents()
+    {
+        $left = new Money(100);
+        $right = 3;
+
+        [$result, $remainder] = $left->divide($right);
+
+        $this->assertEquals(33, $result->cents);
+        $this->assertEquals(1, $remainder);
+    }
 
     public function testRound()
     {}
