@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\DataObjects;
 
-readonly class Money
+use Illuminate\Contracts\Database\Eloquent\Castable;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
+
+readonly class Money implements Castable
 {
     private const SCALE = 2;
 
     public function __construct(public int $cents)
     {}
 
-    public static function fromDecimal(string $decimal): static
+    public static function fromDecimal(string|float|int $decimal): static
     {
         if (!is_numeric($decimal)) {
             throw new \InvalidArgumentException(sprintf(
@@ -114,5 +118,52 @@ readonly class Money
             $decPoint,
             $thousandsSep
         );
+    }
+
+    public static function castUsing(array $arguments): CastsAttributes
+    {
+        return new class implements CastsAttributes
+        {
+            /**
+             * Cast the given value.
+             *
+             * @param  array<string, mixed>  $attributes
+             */
+            public function get(Model $model, string $key, mixed $value, array $attributes): ?self
+            {
+                if ($value === null) {
+                    return null;
+                }
+
+                if ($value instanceof self) {
+                    return $value;
+                }
+
+                if (is_int($value)) {
+                    return self::fromDecimal((string) $value);
+                }
+
+                throw new \InvalidArgumentException('Money must be an integer');
+            }
+
+            /**
+             * Prepare the given value for storage.
+             *
+             * @param  array<string, mixed>  $attributes
+             */
+            public function set(Model $model, string $key, mixed $value, array $attributes): string
+            {
+                if (!$value instanceof Money) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Invalid type for field \'%s\' (%s: %s), expected Money',
+                        $key,
+                        gettype($value),
+                        (string) $value
+                    ));
+                }
+
+                return (string) $value;
+            }
+        };
     }
 }
