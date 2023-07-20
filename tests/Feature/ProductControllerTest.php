@@ -40,4 +40,42 @@ class ProductControllerTest extends TestCase
             ]
         );
     }
+
+    public function testPriceWithVat()
+    {
+        /** @var Product $product */
+        $product = Product::factory()->create();
+        $vat = config('product.vat');
+
+        $calculatedVatAmount = $product->price->cents * $vat / 100;
+        $calculatedPriceWithVat = $product->price->cents + $calculatedVatAmount;
+
+        $vatAmountString = number_format(
+            $calculatedVatAmount / 100,
+            2,
+            '.',
+            ''
+        );
+
+        $priceWithVatString = number_format(
+            $calculatedPriceWithVat / 100,
+            2,
+            '.',
+            ''
+        );
+
+        // Заваливается примерно в половине случаев
+        $this
+            ->getJson(route('products.show', $product))
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) =>
+                $json
+                    ->where('title', $product->title)
+                    ->where('discount', (string) $product->discount)
+                    ->where('price', (string) $product->price)
+                    ->where('vat_amount', $vatAmountString)
+                    ->where('price_with_vat', $priceWithVatString)
+                    ->etc()
+            );
+    }
 }
