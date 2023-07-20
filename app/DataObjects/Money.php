@@ -26,8 +26,18 @@ readonly class Money
         return new static($this->cents * $multiplier);
     }
 
-    public function divide(int $divisor): static
-    {}
+    /**
+     * @throws \DivisionByZeroError
+     *
+     * @return array{0: static, 1: int}
+     */
+    public function divide(int $divisor): array
+    {
+        $result = intdiv($this->cents, $divisor);
+        $remainder = $this->cents % $divisor;
+
+        return [new static($result), $remainder];
+    }
 
     public function round(int $precision): static
     {}
