@@ -1,0 +1,9 @@
+version: "2.7"
+logs:
+  mode: development
+  file_logger_options:
+    log_output: "rr.log"
+    max_size: 10000
+    max_age: 1
+    max_backups: 5
+    compress: false

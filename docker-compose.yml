@@ -1,29 +1,37 @@
 version: '3'
 services:
-    laravel.test:
-        build:
-            context: ./vendor/laravel/sail/runtimes/8.2
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: sail-8.2/app
+    laravel:
+        image: ghcr.io/shanginn/laravel-docker-image-base:master
         extra_hosts:
             - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-        environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-            IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
-            - '.:/var/www/html'
+            - .:/var/www/app
         networks:
             - sail
         depends_on:
             - pgsql
+        container_name: laravel_${APP_NAME}
+        entrypoint:
+            - php
+            - -d
+            - variables_order=EGPCS
+            - artisan
+            - octane:start
+            - --server=roadrunner
+            - --host=0.0.0.0
+            - --port=8000
+            - --workers=1
+            - --task-workers=1
+            - --max-requests=500
+            - --rr-config=.rr.dev.yaml
+        ports:
+            - '${FORWARD_APP_PORT:-80}:8000'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            NODE_PATH: /usr/local/lib/node_modules
     pgsql:
         image: 'postgres:15'
         ports:
