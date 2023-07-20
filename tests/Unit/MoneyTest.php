@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\DataObjects\Money;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class MoneyTest extends TestCase
@@ -37,17 +38,6 @@ class MoneyTest extends TestCase
         $this->assertEquals(2_00, $result->cents);
     }
 
-    public function testDivideInt()
-    {
-        $left = new Money(1_00);
-        $right = 2;
-
-        [$result, $centsRemainder] = $left->divide($right);
-
-        $this->assertEquals(50, $result->cents);
-        $this->assertEquals(0, $centsRemainder);
-    }
-
     public function testDivideZero()
     {
         $left = new Money(1_00);
@@ -58,104 +48,86 @@ class MoneyTest extends TestCase
         $left->divide($right);
     }
 
-    public function testDivideCents()
+    public static function divideDataProvider(): \Generator
     {
-        $left = new Money(1_00);
-        $right = 3;
-
-        [$result, $centsRemainder] = $left->divide($right);
-
-        $this->assertEquals(33, $result->cents);
-        $this->assertEquals(1.0, $centsRemainder);
-
-        $left = new Money(100_15);
-        $right = 1000;
-
-        [$result, $centsRemainder] = $left->divide($right);
-        $this->assertEquals(10, $result->cents);
-        $this->assertEquals(15.0, $centsRemainder);
+        yield 'Деление без остатка' => [1_00, 2, 50, 0.0];
+        yield 'Остаток в одну копейку' => [1_00, 3, 33, 1.0];
+        yield 'Остаток в 15 копеек' => [100_15, 1000, 10, 15.0];
     }
 
-    public function testCeil()
+    #[DataProvider('divideDataProvider')]
+    public function testDivide(int $cents, int $divisor, int $expectedResult, float $expectedRemainder)
     {
-        $number = new Money(1_10);
+        $left = new Money($cents);
+
+        [$result, $centsRemainder] = $left->divide($divisor);
+
+        $this->assertEquals($expectedResult, $result->cents);
+        $this->assertEquals($expectedRemainder, $centsRemainder);
+    }
+
+    public static function ceilDataProvider(): \Generator
+    {
+        yield 'Округление в большую сторону (1.1 > 2)' => [1_10, 2_00];
+        yield 'Округление в большую сторону (1.5 > 2)' => [1_50, 2_00];
+        yield 'Округление в большую сторону (-1.9 > -1)' => [-1_90, -1_00];
+    }
+
+    #[DataProvider('ceilDataProvider')]
+    public function testCeil(int $cents, int $expectedResult)
+    {
+        $number = new Money($cents);
         $result = $number->ceil();
-        $this->assertEquals(2_00, $result->cents);
-
-        $number = new Money(1_50);
-        $result = $number->ceil();
-        $this->assertEquals(2_00, $result->cents);
-
-        $number = new Money(-1_90);
-        $result = $number->ceil();
-        $this->assertEquals(-1_00, $result->cents);
+        $this->assertEquals($expectedResult, $result->cents);
     }
 
-    public function testFloor()
+    public static function floorDataProvider(): \Generator
     {
-        $number = new Money(1_90);
-        $result = $number->floor();
-        $this->assertEquals(1_00, $result->cents);
-
-        $number = new Money(1_50);
-        $result = $number->floor();
-        $this->assertEquals(1_00, $result->cents);
-
-        $number = new Money(-1_10);
-        $result = $number->floor();
-        $this->assertEquals(-2_00, $result->cents);
+        yield 'Округление в меньшую сторону (1.1 > 1)' => [1_10, 1_00];
+        yield 'Округление в меньшую сторону (1.5 > 1)' => [1_50, 1_00];
+        yield 'Округление в меньшую сторону (-1.9 > -2)' => [-1_90, -2_00];
     }
 
-    public function testPercent()
+    #[DataProvider('floorDataProvider')]
+    public function testFloor(int $cents, int $expectedResult)
     {
-        $number = new Money(100_15);
-        [$result, $centsRemainder] = $number->percent(10);
-        $this->assertEquals(10_01, $result->cents);
-        $this->assertEquals(0.5, $centsRemainder);
-
-        $number = new Money(111_11);
-        [$result, $centsRemainder] = $number->percent(33);
-        $this->assertEquals(36_66, $result->cents);
-        $this->assertEquals(0.63, $centsRemainder);
-
-        $number = new Money(123_45);
-        [$result, $centsRemainder] = $number->percent(99.9999);
-        $this->assertEquals(123_44, $result->cents);
-        $this->assertGreaterThan(0, $centsRemainder);
-        $this->assertLessThan(1, $centsRemainder);
-
-        $number = new Money(123_45);
-        [$result, $centsRemainder] = $number->percent(0.0001);
-        $this->assertEquals(0, $result->cents);
-        $this->assertLessThan(1, $centsRemainder);
-        $this->assertGreaterThan(0, $centsRemainder);
+        $number = new Money($cents);
+        $result = $number->floor();
+        $this->assertEquals($expectedResult, $result->cents);
     }
 
-    public function testToString()
+    public static function percentDataProvider(): \Generator
     {
-        $this->assertEquals(
-            '1.00',
-            (string) new Money(1_00)
-        );
+        yield '10% от 100' => [100_00, 10, 10_00, true];
+        yield '10% от 100.15' => [100_15, 10, 10_01, false];
+        yield '33% от 111.11' => [111_11, 33, 36_66, false];
+        yield '99.9999% от 123.45' => [123_45, 99.9999, 123_44, false];
+        yield '0.0001% от 123.45' => [123_45, 0.0001, 0, false];
+    }
 
-        $this->assertEquals(
-            '1000.99',
-            (string) new Money(1_000_99)
-        );
+    #[DataProvider('percentDataProvider')]
+    public function testPercent(int $cents, float $percent, int $expectedResult, bool $emptyRemainder)
+    {
+        $number = new Money($cents);
+        [$result, $centsRemainder] = $number->percent($percent);
+        $this->assertEquals($expectedResult, $result->cents);
 
-        $this->assertEquals(
-            '-1.00',
-            (string) new Money(-1_00)
-        );
+        $this->assertEquals($emptyRemainder, $centsRemainder === 0.0);
+    }
 
-        $this->assertEquals(
-            '0.01',
-            (string) new Money(1)
-        );
+    public static function toStringDataProvider(): \Generator
+    {
+        yield [1_00, '1.00'];
+        yield [1_000_99, '1000.99'];
+        yield [-1_00, '-1.00'];
+        yield [1, '0.01'];
+        yield [0, '0.00'];
+    }
 
-        $this->assertEquals(
-            '0.00',
-            (string) new Money(0)
-        );
+    #[DataProvider('toStringDataProvider')]
+    public function testToString(int $cents, string $expectedResult)
+    {
+        $number = new Money($cents);
+        $this->assertEquals($expectedResult, (string) $number);
     }
 }
