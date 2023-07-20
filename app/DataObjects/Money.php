@@ -77,5 +77,12 @@ readonly class Money
     }
 
     public function __toString(): string
-    {}
+    {
+        return number_format(
+            $this->cents / 10 ** self::SCALE,
+            self::SCALE,
+            '.',
+            ''
+        );
+    }
 }
