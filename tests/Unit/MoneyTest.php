@@ -132,5 +132,30 @@ class MoneyTest extends TestCase
     }
 
     public function testToString()
-    {}
+    {
+        $this->assertEquals(
+            '1.00',
+            (string) new Money(1_00)
+        );
+
+        $this->assertEquals(
+            '1000.99',
+            (string) new Money(1_000_99)
+        );
+
+        $this->assertEquals(
+            '-1.00',
+            (string) new Money(-1_00)
+        );
+
+        $this->assertEquals(
+            '0.01',
+            (string) new Money(1)
+        );
+
+        $this->assertEquals(
+            '0.00',
+            (string) new Money(0)
+        );
+    }
 }
