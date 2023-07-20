@@ -78,6 +78,10 @@ class MoneyTest extends TestCase
         $number = new Money(150);
         $result = $number->ceil();
         $this->assertEquals(200, $result->cents);
+
+        $number = new Money(-190);
+        $result = $number->ceil();
+        $this->assertEquals(-100, $result->cents);
     }
 
     public function testFloor()
