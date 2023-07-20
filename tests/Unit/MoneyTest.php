@@ -69,8 +69,16 @@ class MoneyTest extends TestCase
         $this->assertEquals(1, $remainder);
     }
 
-    public function testRound()
-    {}
+    public function testCeil()
+    {
+        $number = new Money(110);
+        $result = $number->ceil();
+        $this->assertEquals(200, $result->cents);
+
+        $number = new Money(150);
+        $result = $number->ceil();
+        $this->assertEquals(200, $result->cents);
+    }
 
     public function testFloor()
     {}
