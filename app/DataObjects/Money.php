@@ -49,7 +49,13 @@ readonly class Money
     }
 
     public function floor(): static
-    {}
+    {
+        $scale = 10 ** self::SCALE;
+
+        return new static(
+            (int) (floor($this->cents / $scale) * $scale)
+        );
+    }
 
     public function percent(int $percent): static
     {}
