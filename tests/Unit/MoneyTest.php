@@ -28,7 +28,14 @@ class MoneyTest extends TestCase
     }
 
     public function testMultiply()
-    {}
+    {
+        $left = new Money(100);
+        $right = 2;
+
+        $result = $left->multiply($right);
+
+        $this->assertEquals(200, $result->cents);
+    }
 
     public function testDivide()
     {}
