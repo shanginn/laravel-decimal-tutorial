@@ -42,10 +42,10 @@ class MoneyTest extends TestCase
         $left = new Money(1_00);
         $right = 2;
 
-        [$result, $remainder] = $left->divide($right);
+        [$result, $centsRemainder] = $left->divide($right);
 
-        $this->assertEquals(0_50, $result->cents);
-        $this->assertEquals(0, $remainder);
+        $this->assertEquals(50, $result->cents);
+        $this->assertEquals(0, $centsRemainder);
     }
 
     public function testDivideZero()
@@ -63,10 +63,17 @@ class MoneyTest extends TestCase
         $left = new Money(1_00);
         $right = 3;
 
-        [$result, $remainder] = $left->divide($right);
+        [$result, $centsRemainder] = $left->divide($right);
 
-        $this->assertEquals(0_33, $result->cents);
-        $this->assertEquals(1, $remainder);
+        $this->assertEquals(33, $result->cents);
+        $this->assertEquals(1.0, $centsRemainder);
+
+        $left = new Money(100_15);
+        $right = 1000;
+
+        [$result, $centsRemainder] = $left->divide($right);
+        $this->assertEquals(10, $result->cents);
+        $this->assertEquals(15.0, $centsRemainder);
     }
 
     public function testCeil()
@@ -97,6 +104,31 @@ class MoneyTest extends TestCase
         $number = new Money(-1_10);
         $result = $number->floor();
         $this->assertEquals(-2_00, $result->cents);
+    }
+
+    public function testPercent()
+    {
+        $number = new Money(100_15);
+        [$result, $centsRemainder] = $number->percent(10);
+        $this->assertEquals(10_01, $result->cents);
+        $this->assertEquals(0.5, $centsRemainder);
+
+        $number = new Money(111_11);
+        [$result, $centsRemainder] = $number->percent(33);
+        $this->assertEquals(36_66, $result->cents);
+        $this->assertEquals(0.63, $centsRemainder);
+
+        $number = new Money(123_45);
+        [$result, $centsRemainder] = $number->percent(99.9999);
+        $this->assertEquals(123_44, $result->cents);
+        $this->assertGreaterThan(0, $centsRemainder);
+        $this->assertLessThan(1, $centsRemainder);
+
+        $number = new Money(123_45);
+        [$result, $centsRemainder] = $number->percent(0.0001);
+        $this->assertEquals(0, $result->cents);
+        $this->assertLessThan(1, $centsRemainder);
+        $this->assertGreaterThan(0, $centsRemainder);
     }
 
     public function testToString()
