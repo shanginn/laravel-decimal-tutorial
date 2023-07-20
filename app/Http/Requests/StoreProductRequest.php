@@ -2,27 +2,29 @@
 
 namespace App\Http\Requests;
 
+use App\DataObjects\Money;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @property string $title
+ * @property float $discount
+ * @property Money $price
+ */
 class StoreProductRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|string',
+            'discount' => 'nullable|numeric',
+            'price' => 'required|numeric|decimal:2|gt:0',
         ];
+    }
+
+    protected function passedValidation(): void
+    {
+        $this->merge([
+            'price' => Money::fromDecimal($this->price)
+        ]);
     }
 }
