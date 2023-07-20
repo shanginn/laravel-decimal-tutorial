@@ -129,21 +129,17 @@ readonly class Money implements Castable
              *
              * @param  array<string, mixed>  $attributes
              */
-            public function get(Model $model, string $key, mixed $value, array $attributes): ?self
+            public function get(Model $model, string $key, mixed $value, array $attributes): ?Money
             {
                 if ($value === null) {
                     return null;
                 }
 
-                if ($value instanceof self) {
+                if ($value instanceof Money) {
                     return $value;
                 }
 
-                if (is_int($value)) {
-                    return self::fromDecimal((string) $value);
-                }
-
-                throw new \InvalidArgumentException('Money must be an integer');
+                return Money::fromDecimal((string) $value);
             }
 
             /**
@@ -162,6 +158,11 @@ readonly class Money implements Castable
                     ));
                 }
 
+                return (string) $value;
+            }
+
+            public function serialize($model, string $key, $value, array $attributes): string
+            {
                 return (string) $value;
             }
         };
