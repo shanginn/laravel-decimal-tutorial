@@ -17,7 +17,9 @@ readonly class Money
     }
 
     public function subtract(self $another): static
-    {}
+    {
+        return new static($this->cents - $another->cents);
+    }
 
     public function multiply(self $another): static
     {}
