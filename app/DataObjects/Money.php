@@ -39,8 +39,14 @@ readonly class Money
         return [new static($result), $remainder];
     }
 
-    public function round(int $precision): static
-    {}
+    public function ceil(): static
+    {
+        $scale = 10 ** self::SCALE;
+
+        return new static(
+            (int) (ceil($this->cents / $scale) * $scale)
+        );
+    }
 
     public function floor(): static
     {}
