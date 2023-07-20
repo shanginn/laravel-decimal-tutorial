@@ -29,7 +29,10 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        //
+        $product = new Product($request->all());
+        $product->save();
+
+        return response()->json($product, 201);
     }
 
     /**
