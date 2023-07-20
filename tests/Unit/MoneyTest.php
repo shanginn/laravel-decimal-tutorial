@@ -18,7 +18,14 @@ class MoneyTest extends TestCase
     }
 
     public function testSubtract()
-    {}
+    {
+        $left = new Money(100);
+        $right = new Money(200);
+
+        $result = $left->subtract($right);
+
+        $this->assertEquals(-100, $result->cents);
+    }
 
     public function testMultiply()
     {}
