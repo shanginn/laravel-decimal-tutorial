@@ -21,10 +21,10 @@ readonly class Money
         return new static($this->cents - $another->cents);
     }
 
-    public function multiply(self $another): static
+    public function multiply(int $multiplier): static
     {}
 
-    public function divide(self $another): static
+    public function divide(int $divisor): static
     {}
 
     public function round(int $precision): static
