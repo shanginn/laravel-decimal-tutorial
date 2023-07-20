@@ -130,4 +130,37 @@ class MoneyTest extends TestCase
         $number = new Money($cents);
         $this->assertEquals($expectedResult, (string) $number);
     }
+
+    public static function fromDecimalDataProvider(): \Generator
+    {
+        yield ['1.00', 1_00];
+        yield ['1.000', 1_00];
+        yield ['1.001', 1_00];
+        yield ['0.00', 0];
+        yield ['0.01', 1];
+        yield ['0.001', 0];
+        yield ['100.11', 100_11];
+        yield ['-100', -100_00];
+    }
+
+    #[DataProvider('fromDecimalDataProvider')]
+    public function testFromDecimal(string $decimal, int $expectedCents)
+    {
+        $number = Money::fromDecimal($decimal);
+        $this->assertEquals($expectedCents, $number->cents);
+    }
+
+    public static function fromWrongDecimalDataProvider(): \Generator
+    {
+        yield 'Word' => [fake()->word];
+        yield 'Wrong delimiter' => ['1,00'];
+        yield '1.00.00' => ['1.00.00'];
+    }
+
+    #[DataProvider('fromWrongDecimalDataProvider')]
+    public function testFromWrongDecimal(string $decimal)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Money::fromDecimal($decimal);
+    }
 }

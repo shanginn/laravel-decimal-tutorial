@@ -11,6 +11,23 @@ readonly class Money
     public function __construct(public int $cents)
     {}
 
+    public static function fromDecimal(string $decimal): static
+    {
+        if (!is_numeric($decimal)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Invalid decimal value (%s)',
+                $decimal
+            ));
+        }
+
+        $float = (float) $decimal;
+        $rounded = round($float, self::SCALE);
+
+        return new static(
+            (int) ($rounded * 10 ** self::SCALE)
+        );
+    }
+
     public function add(self $another): static
     {
         return new static($this->cents + $another->cents);
