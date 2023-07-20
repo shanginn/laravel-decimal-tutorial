@@ -38,18 +38,18 @@ class Product extends Model
     protected function discountedPrice(): Attribute
     {
         return Attribute::make(
-            get: fn () => (string) $this->price->subtract(
-                $this->price->percent($this->discount)[0]
-            )
+            get: fn () => (string) $this->price->subtractPercent(
+                $this->discount
+            )[0]
         );
     }
 
     protected function priceWithVat(): Attribute
     {
         return Attribute::make(
-            get: fn () => (string) $this->price->add(
-                Money::fromDecimal($this->vat_amount)
-            )
+            get: fn () => (string) $this->price->addPercent(
+                config('product.vat')
+            )[0]
         );
     }
 
