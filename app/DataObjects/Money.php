@@ -13,6 +13,7 @@ readonly class Money
 
     public function add(self $another): static
     {
+        return new static($this->cents + $another->cents);
     }
 
     public function subtract(self $another): static
