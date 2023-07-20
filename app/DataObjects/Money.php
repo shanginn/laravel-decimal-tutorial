@@ -22,7 +22,9 @@ readonly class Money
     }
 
     public function multiply(int $multiplier): static
-    {}
+    {
+        return new static($this->cents * $multiplier);
+    }
 
     public function divide(int $divisor): static
     {}
