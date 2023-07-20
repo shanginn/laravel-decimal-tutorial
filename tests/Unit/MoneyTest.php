@@ -110,8 +110,46 @@ class MoneyTest extends TestCase
     {
         $number = new Money($cents);
         [$result, $centsRemainder] = $number->percent($percent);
-        $this->assertEquals($expectedResult, $result->cents);
 
+        $this->assertEquals($expectedResult, $result->cents);
+        $this->assertEquals($emptyRemainder, $centsRemainder === 0.0);
+    }
+
+    public static function addPercentDataProvider(): \Generator
+    {
+        yield '100 + 10%' => [100_00, 10, 110_00, true];
+        yield '100.15 + 10%' => [100_15, 10, 110_16, false];
+        yield '111.11 + 33%' => [111_11, 33, 147_77, false];
+        yield '123.45 + 99.9999%' => [123_45, 99.9999, 246_89, false];
+        yield '123.45 + 0.0001%' => [123_45, 0.0001, 123_45, false];
+    }
+
+    #[DataProvider('addPercentDataProvider')]
+    public function testAddPercent(int $cents, float $percent, int $expectedResult, bool $emptyRemainder)
+    {
+        $number = new Money($cents);
+        [$result, $centsRemainder] = $number->addPercent($percent);
+
+        $this->assertEquals($expectedResult, $result->cents);
+        $this->assertEquals($emptyRemainder, $centsRemainder === 0.0);
+    }
+
+    public static function subtractPercentDataProvider(): \Generator
+    {
+        yield '100 - 10%' => [100_00, 10, 90_00, true];
+        yield '100.15 - 10%' => [100_15, 10, 90_13, false];
+        yield '111.11 - 33%' => [111_11, 33, 74_44, false];
+        yield '123.45 - 99.9999%' => [123_45, 99.9999, 0, false];
+        yield '123.45 - 0.0001%' => [123_45, 0.0001, 123_44, false];
+    }
+
+    #[DataProvider('subtractPercentDataProvider')]
+    public function testSubtractPercent(int $cents, float $percent, int $expectedResult, bool $emptyRemainder)
+    {
+        $number = new Money($cents);
+        [$result, $centsRemainder] = $number->subtractPercent($percent);
+
+        $this->assertEquals($expectedResult, $result->cents);
         $this->assertEquals($emptyRemainder, $centsRemainder === 0.0);
     }
 

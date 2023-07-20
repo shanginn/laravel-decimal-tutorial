@@ -84,12 +84,46 @@ readonly class Money implements Castable
      */
     public function percent(float $percent): array
     {
-        $scale = 10 ** self::SCALE;
+        $total = $this->cents * $percent / 100;
 
-        $total = $this->cents * $percent;
+        $result = (int) floor($total);
+        $remainder = fmod($total, 100) / 100;
 
-        $result = (int) floor($total / $scale);
-        $remainder = fmod($total, $scale) / $scale;
+        return [
+            new static($result),
+            $remainder
+        ];
+    }
+
+    /**
+     * @param float $percent
+     * @return array{0: static, 1: float}
+     */
+    public function addPercent(float $percent): array
+    {
+        $totalPercent = $this->cents * $percent / 100;
+        $total = $this->cents + $totalPercent;
+
+        $result = (int) floor($total);
+        $remainder = fmod($total, 100) / 100;
+
+        return [
+            new static($result),
+            $remainder
+        ];
+    }
+
+    /**
+     * @param float $percent
+     * @return array{0: static, 1: float}
+     */
+    public function subtractPercent(float $percent): array
+    {
+        $totalPercent = $this->cents * $percent / 100;
+        $total = $this->cents - $totalPercent;
+
+        $result = (int) floor($total);
+        $remainder = fmod($total, 100) / 100;
 
         return [
             new static($result),
