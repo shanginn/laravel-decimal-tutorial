@@ -75,6 +75,7 @@ class ProductControllerTest extends TestCase
                     ->where('price', (string) $product->price)
                     ->where('vat_amount', $vatAmountString)
                     ->where('price_with_vat', $priceWithVatString)
+                    ->where('discounted_price', $product->discounted_price)
                     ->etc()
             );
     }

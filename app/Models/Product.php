@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $title
  * @property-read string $price_with_vat
  * @property-read string $vat_amount
+ * @property-read string $discounted_price
  */
 class Product extends Model
 {
@@ -31,7 +32,17 @@ class Product extends Model
     protected $appends = [
         'price_with_vat',
         'vat_amount',
+        'discounted_price'
     ];
+
+    protected function discountedPrice(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => (string) $this->price->subtract(
+                $this->price->percent($this->discount)[0]
+            )
+        );
+    }
 
     protected function priceWithVat(): Attribute
     {
