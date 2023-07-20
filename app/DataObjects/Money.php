@@ -85,4 +85,17 @@ readonly class Money
             ''
         );
     }
+
+    public function format(
+        int $decimals = 2,
+        string $decPoint = '.',
+        string $thousandsSep = ''
+    ): string {
+        return number_format(
+            $this->cents / 10 ** self::SCALE,
+            $decimals,
+            $decPoint,
+            $thousandsSep
+        );
+    }
 }
