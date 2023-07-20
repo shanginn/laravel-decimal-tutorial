@@ -85,7 +85,19 @@ class MoneyTest extends TestCase
     }
 
     public function testFloor()
-    {}
+    {
+        $number = new Money(190);
+        $result = $number->floor();
+        $this->assertEquals(100, $result->cents);
+
+        $number = new Money(150);
+        $result = $number->floor();
+        $this->assertEquals(100, $result->cents);
+
+        $number = new Money(-110);
+        $result = $number->floor();
+        $this->assertEquals(-200, $result->cents);
+    }
 
     public function testToString()
     {}
