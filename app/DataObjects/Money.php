@@ -65,7 +65,7 @@ readonly class Money implements Castable
         $scale = 10 ** self::SCALE;
 
         return new static(
-            (int) (ceil($this->cents / $scale) * $scale)
+            (int) (ceil(fdiv($this->cents, $scale)) * $scale)
         );
     }
 
@@ -74,7 +74,7 @@ readonly class Money implements Castable
         $scale = 10 ** self::SCALE;
 
         return new static(
-            (int) (floor($this->cents / $scale) * $scale)
+            (int) (floor(fdiv($this->cents, $scale)) * $scale)
         );
     }
 
@@ -84,10 +84,10 @@ readonly class Money implements Castable
      */
     public function percent(float $percent): array
     {
-        $total = $this->cents * $percent / 100;
+        $total = fdiv($this->cents * $percent, 100);
 
         $result = (int) floor($total);
-        $remainder = fmod($total, 100) / 100;
+        $remainder = fdiv(fmod($total, 100), 100);
 
         return [
             new static($result),
@@ -101,11 +101,11 @@ readonly class Money implements Castable
      */
     public function addPercent(float $percent): array
     {
-        $totalPercent = $this->cents * $percent / 100;
+        $totalPercent = fdiv($this->cents * $percent, 100);
         $total = $this->cents + $totalPercent;
 
         $result = (int) floor($total);
-        $remainder = fmod($total, 100) / 100;
+        $remainder = fdiv(fmod($total, 100), 100);
 
         return [
             new static($result),
@@ -119,11 +119,11 @@ readonly class Money implements Castable
      */
     public function subtractPercent(float $percent): array
     {
-        $totalPercent = $this->cents * $percent / 100;
+        $totalPercent = fdiv($this->cents * $percent, 100);
         $total = $this->cents - $totalPercent;
 
         $result = (int) floor($total);
-        $remainder = fmod($total, 100) / 100;
+        $remainder = fdiv(fmod($total, 100), 100);
 
         return [
             new static($result),
