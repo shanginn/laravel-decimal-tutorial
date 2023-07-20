@@ -14,6 +14,13 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('title');
+            $table->float('discount')->nullable();
+            $table->unsignedDecimal(
+                column: 'price',
+                total: 8,
+                places: 2
+            );
         });
     }
 
