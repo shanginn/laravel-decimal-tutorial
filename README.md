@@ -77,7 +77,8 @@
 используем дефолтную валидация через `decimal:2`, но можно сделать и [кастомную](https://laravel.com/docs/10.x/validation#custom-validation-rules).
 
 Чтобы из запроса мы сразу работали с `Money`, после прохождения валидации
-конвертируем сумму внутри (`passedValidation`)[https://github.com/shanginn/laravel-decimal-tutorial/blob/05843e92aad506c85859c311b5e3f431a3c1e19a/app/Http/Requests/StoreProductRequest.php#L24C24-L24C40]
+конвертируем сумму внутри
+[`passedValidation`](https://github.com/shanginn/laravel-decimal-tutorial/blob/05843e92aad506c85859c311b5e3f431a3c1e19a/app/Http/Requests/StoreProductRequest.php#L24C24-L24C40)
 
 ### На фронтенд
 Чтобы на фронт приходила строка, нужна
@@ -90,5 +91,14 @@
 
 А создание и получение - [функциональными](https://github.com/shanginn/laravel-decimal-tutorial/blob/master/tests/Feature/ProductControllerTest.php).
 
+Подробнее хотелось бы остановиться на [тесте подсчетов цены с НДС](https://github.com/shanginn/laravel-decimal-tutorial/blob/05843e92aad506c85859c311b5e3f431a3c1e19a/tests/Feature/ProductControllerTest.php#L44).
+
+Дело в том, что он проходит примерно 50/50, и иногда заваливается как раз из-за ошибки на одну копейку.
+Да, возможно, [НДС 13.57%](https://github.com/shanginn/laravel-decimal-tutorial/blob/303519d94f9209cfd0883664fb58a098d233de09/config/product.php#L4)
+это редкость, но замечательно демонстрирует важность выбора правильного подхода к работе с деньгами.
+
 ## Заключение
 Вот и всё. Получилось достаточно интересное упражнение.
+
+На красоту и истину не претендую, но надеюсь, кому-нибудь поможет понять задуматься
+над вариантами работы с деньгами в Laravel.
