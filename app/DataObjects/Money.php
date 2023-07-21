@@ -6,7 +6,7 @@ namespace App\DataObjects;
 
 use Illuminate\Contracts\Database\Eloquent\Castable;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
-use Illuminate\Database\Eloquent\Model;
+use App\Casts\Money as MoneyCast;
 
 readonly class Money implements Castable
 {
@@ -156,49 +156,6 @@ readonly class Money implements Castable
 
     public static function castUsing(array $arguments): CastsAttributes
     {
-        return new class implements CastsAttributes
-        {
-            /**
-             * Cast the given value.
-             *
-             * @param  array<string, mixed>  $attributes
-             */
-            public function get(Model $model, string $key, mixed $value, array $attributes): ?Money
-            {
-                if ($value === null) {
-                    return null;
-                }
-
-                if ($value instanceof Money) {
-                    return $value;
-                }
-
-                return Money::fromDecimal((string) $value);
-            }
-
-            /**
-             * Prepare the given value for storage.
-             *
-             * @param  array<string, mixed>  $attributes
-             */
-            public function set(Model $model, string $key, mixed $value, array $attributes): string
-            {
-                if (!$value instanceof Money) {
-                    throw new \InvalidArgumentException(sprintf(
-                        'Invalid type for field \'%s\' (%s: %s), expected Money',
-                        $key,
-                        gettype($value),
-                        (string) $value
-                    ));
-                }
-
-                return (string) $value;
-            }
-
-            public function serialize($model, string $key, $value, array $attributes): string
-            {
-                return (string) $value;
-            }
-        };
+        return new MoneyCast();
     }
 }
